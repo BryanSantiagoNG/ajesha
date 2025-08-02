@@ -122,17 +122,35 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ucAbout.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ucAbout.Designer.cs">
+      <DependentUpon>ucAbout.cs</DependentUpon>
+    </Compile>
     <Compile Include="ucAdminSistema.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="ucAdminSistema.Designer.cs">
       <DependentUpon>ucAdminSistema.cs</DependentUpon>
     </Compile>
+    <Compile Include="ucCoordinatorPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ucCoordinatorPanel.Designer.cs">
+      <DependentUpon>ucCoordinatorPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="ucDashboard.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="ucDashboard.Designer.cs">
       <DependentUpon>ucDashboard.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ucNotifications.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ucNotifications.Designer.cs">
+      <DependentUpon>ucNotifications.cs</DependentUpon>
     </Compile>
     <Compile Include="ucProfile.cs">
       <SubType>UserControl</SubType>
