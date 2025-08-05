@@ -1,6 +1,6 @@
 ﻿namespace ajesha
 {
-    partial class ucCoordinatorPanel
+    partial class ucTeacher_CourseManagement
     {
         /// <summary> 
         /// Variable del diseñador necesaria.

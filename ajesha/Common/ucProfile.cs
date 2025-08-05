@@ -58,8 +58,21 @@ namespace ajesha
 
             this.Controls.Add(contentPanel);
         }
-        private Label CreateTitleLabel(string text, int top) => new Label { Text = text, ForeColor = Color.White, Font = new Font("Segoe UI", 12F, FontStyle.Bold), Location = new Point(0, top), AutoSize = true };
-        private Label CreateValueLabel(string text, int top) => new Label { Text = text, ForeColor = Color.Gainsboro, Font = new Font("Segoe UI", 12F, FontStyle.Regular), Location = new Point(250, top), AutoSize = true };
+        private Label CreateTitleLabel(string text, int top) => new Label 
+        { 
+            Text = text, 
+            ForeColor = Color.White, 
+            Font = new Font("Segoe UI", 12F, FontStyle.Bold), 
+            Location = new Point(0, top), AutoSize = true 
+        };
+        private Label CreateValueLabel(string text, int top) => new Label 
+        { 
+            Text = text, 
+            ForeColor = Color.Gainsboro, 
+            Font = new Font("Segoe UI", 12F, FontStyle.Regular), 
+            Location = new Point(250, top), 
+            AutoSize = true 
+        };
 
         private void CreateSpecificRow(string titleText, string key, int top, Panel parent)
         {

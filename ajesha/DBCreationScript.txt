@@ -1,0 +1,293 @@
+-- =================================================================================
+-- SCRIPT COMPLETO Y FINAL PARA LA CREACIÓN DE LA BASE DE DATOS 'ajesha'
+-- Versión: Funcionalidades completas para Admin, Coordinador, Maestro y Estudiante.
+-- =================================================================================
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+-- SECCIÓN 0: PREPARACIÓN DE LA BASE DE DATOS
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+
+DROP DATABASE IF EXISTS ajesha;
+CREATE DATABASE ajesha CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE ajesha;
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+-- SECCIÓN 1: CREACIÓN DE TABLAS
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+
+CREATE TABLE users (
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    role ENUM('admin', 'coordinator', 'teacher', 'student') NOT NULL,
+    full_name VARCHAR(100) NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_login TIMESTAMP NULL,
+    must_change_password BOOLEAN DEFAULT FALSE,
+    phone VARCHAR(20) NULL,
+    department VARCHAR(50) NULL,
+    specialization VARCHAR(50) NULL,
+    hire_date DATE NULL,
+    date_of_birth DATE NULL,
+    enrollment_date DATE NULL,
+    current_grade_level VARCHAR(20) NULL,
+    CONSTRAINT chk_username CHECK (username REGEXP '^[a-zA-Z0-9_]+$')
+) ENGINE=InnoDB;
+
+CREATE TABLE courses (
+    course_id INT PRIMARY KEY AUTO_INCREMENT,
+    course_code VARCHAR(20) NOT NULL UNIQUE,
+    course_name VARCHAR(100) NOT NULL,
+    description TEXT,
+    credits INT NOT NULL,
+    department VARCHAR(50) NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE
+) ENGINE=InnoDB;
+
+CREATE TABLE academic_cycles (
+    cycle_id INT PRIMARY KEY AUTO_INCREMENT,
+    cycle_name VARCHAR(100) NOT NULL UNIQUE,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    is_active BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE teacher_courses (
+    teacher_course_id INT PRIMARY KEY AUTO_INCREMENT,
+    teacher_id INT NOT NULL,
+    course_id INT NOT NULL,
+    academic_year VARCHAR(20) NOT NULL,
+    semester ENUM('1', '2', 'summer') NOT NULL,
+    schedule VARCHAR(100) NOT NULL,
+    classroom VARCHAR(50),
+    FOREIGN KEY (teacher_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE CASCADE,
+    UNIQUE KEY (teacher_id, course_id, academic_year, semester)
+) ENGINE=InnoDB;
+
+CREATE TABLE student_enrollments (
+    enrollment_id INT PRIMARY KEY AUTO_INCREMENT,
+    student_id INT NOT NULL,
+    course_id INT NOT NULL,
+    teacher_id INT NOT NULL,
+    academic_year VARCHAR(20) NOT NULL,
+    semester ENUM('1', '2', 'summer') NOT NULL,
+    enrollment_date DATE NOT NULL,
+    final_grade DECIMAL(5,2),
+    status ENUM('active', 'withdrawn', 'completed') DEFAULT 'active',
+    FOREIGN KEY (student_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE CASCADE,
+    FOREIGN KEY (teacher_id) REFERENCES users(user_id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE grades (
+    grade_id INT PRIMARY KEY AUTO_INCREMENT,
+    enrollment_id INT NOT NULL,
+    assessment_type ENUM('exam', 'quiz', 'homework', 'project', 'participation') NOT NULL,
+    grade_value DECIMAL(5,2) NOT NULL,
+    max_grade DECIMAL(5,2) NOT NULL,
+    weight DECIMAL(5,2) NOT NULL,
+    assessment_date DATE NOT NULL,
+    comments TEXT,
+    recorded_by INT NOT NULL,
+    recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (enrollment_id) REFERENCES student_enrollments(enrollment_id) ON DELETE CASCADE,
+    FOREIGN KEY (recorded_by) REFERENCES users(user_id) ON DELETE CASCADE,
+    CONSTRAINT chk_grade_value CHECK (grade_value >= 0 AND grade_value <= max_grade),
+    CONSTRAINT chk_weight CHECK (weight > 0 AND weight <= 1)
+) ENGINE=InnoDB;
+
+CREATE TABLE attendance (
+    attendance_id INT PRIMARY KEY AUTO_INCREMENT,
+    enrollment_id INT NOT NULL,
+    class_date DATE NOT NULL,
+    status ENUM('present', 'absent', 'late', 'excused') NOT NULL,
+    recorded_by INT NOT NULL,
+    notes TEXT,
+    FOREIGN KEY (enrollment_id) REFERENCES student_enrollments(enrollment_id) ON DELETE CASCADE,
+    FOREIGN KEY (recorded_by) REFERENCES users(user_id) ON DELETE CASCADE,
+    UNIQUE KEY (enrollment_id, class_date)
+) ENGINE=InnoDB;
+
+CREATE TABLE assignments (
+    assignment_id INT PRIMARY KEY AUTO_INCREMENT,
+    course_id INT NOT NULL,
+    teacher_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    due_date DATETIME NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE CASCADE,
+    FOREIGN KEY (teacher_id) REFERENCES users(user_id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE assignment_submissions (
+    submission_id INT PRIMARY KEY AUTO_INCREMENT,
+    assignment_id INT NOT NULL,
+    student_id INT NOT NULL,
+    submission_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status ENUM('entregada', 'entregada con retraso') NOT NULL,
+    file_name VARCHAR(255) NULL,
+    file_data LONGBLOB NULL,
+    grade DECIMAL(5,2) NULL,
+    teacher_comments TEXT NULL,
+    graded_at DATETIME NULL,
+    FOREIGN KEY (assignment_id) REFERENCES assignments(assignment_id) ON DELETE CASCADE,
+    FOREIGN KEY (student_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    UNIQUE KEY (assignment_id, student_id)
+) ENGINE=InnoDB;
+
+CREATE TABLE document_requests (
+    request_id INT PRIMARY KEY AUTO_INCREMENT,
+    student_id INT NOT NULL,
+    document_type VARCHAR(100) NOT NULL,
+    status ENUM('pending', 'approved', 'rejected', 'completed') DEFAULT 'pending',
+    request_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    notes TEXT,
+    processed_by_user_id INT NULL,
+    processed_date DATETIME NULL,
+    FOREIGN KEY (student_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (processed_by_user_id) REFERENCES users(user_id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+CREATE TABLE attendance_justifications (
+    justification_id INT PRIMARY KEY AUTO_INCREMENT,
+    attendance_id INT NOT NULL,
+    student_id INT NOT NULL,
+    justification_text TEXT NOT NULL,
+    submission_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+    FOREIGN KEY (attendance_id) REFERENCES attendance(attendance_id) ON DELETE CASCADE,
+    FOREIGN KEY (student_id) REFERENCES users(user_id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE notifications (
+    notification_id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    sent_by_user_id INT NOT NULL,
+    sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    audience ENUM('all', 'students', 'teachers') NOT NULL,
+    FOREIGN KEY (sent_by_user_id) REFERENCES users(user_id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE uploaded_files (
+    file_id INT PRIMARY KEY AUTO_INCREMENT,
+    file_name VARCHAR(255) NOT NULL,
+    description TEXT,
+    file_type VARCHAR(100),
+    file_data LONGBLOB NOT NULL,
+    uploaded_by_user_id INT NOT NULL,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (uploaded_by_user_id) REFERENCES users(user_id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE user_role_changes (
+    change_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    old_role ENUM('admin', 'coordinator', 'teacher', 'student'),
+    new_role ENUM('admin', 'coordinator', 'teacher', 'student'),
+    changed_by INT NOT NULL,
+    changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (changed_by) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+CREATE TABLE teacher_observations (
+    observation_id INT PRIMARY KEY AUTO_INCREMENT,
+    enrollment_id INT NOT NULL, -- Vincula directamente a la inscripción del estudiante en el curso
+    teacher_id INT NOT NULL,
+    observation_text TEXT NOT NULL,
+    observation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (enrollment_id) REFERENCES student_enrollments(enrollment_id) ON DELETE CASCADE,
+    FOREIGN KEY (teacher_id) REFERENCES users(user_id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+-- SECCIÓN 2: FUNCIONES
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+DELIMITER //
+CREATE FUNCTION encrypt_password(p_password VARCHAR(255)) RETURNS VARCHAR(255) DETERMINISTIC BEGIN RETURN SHA2(CONCAT(p_password, 'school_system_salt'), 256); END //
+CREATE FUNCTION verify_password(p_user_id INT, p_password VARCHAR(255)) RETURNS BOOLEAN READS SQL DATA BEGIN DECLARE stored_hash VARCHAR(255); SELECT password_hash INTO stored_hash FROM users WHERE user_id = p_user_id; RETURN (stored_hash = encrypt_password(p_password)); END //
+CREATE FUNCTION calculate_course_average(p_enrollment_id INT) RETURNS DECIMAL(5,2) READS SQL DATA BEGIN DECLARE avg_grade DECIMAL(5,2); SELECT SUM(grade_value * weight) / SUM(max_grade * weight) * 100 INTO avg_grade FROM grades WHERE enrollment_id = p_enrollment_id; RETURN IFNULL(avg_grade, 0); END //
+DELIMITER ;
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+-- SECCIÓN 3: PROCEDIMIENTOS ALMACENADOS
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+DELIMITER //
+
+CREATE PROCEDURE sp_register_user(
+    IN p_username VARCHAR(50), IN p_password VARCHAR(255), IN p_email VARCHAR(100),
+    IN p_role ENUM('admin', 'coordinator', 'teacher', 'student'), IN p_full_name VARCHAR(100),
+    IN p_role_specific_data JSON, OUT p_user_id INT
+)
+BEGIN
+    INSERT INTO users (
+        username, password_hash, email, role, full_name, phone, department,
+        specialization, hire_date, date_of_birth, enrollment_date, current_grade_level
+    ) VALUES (
+        p_username, p_password, p_email, p_role, p_full_name,
+        JSON_UNQUOTE(JSON_EXTRACT(p_role_specific_data, '$.phone')),
+        JSON_UNQUOTE(JSON_EXTRACT(p_role_specific_data, '$.department')),
+        JSON_UNQUOTE(JSON_EXTRACT(p_role_specific_data, '$.specialization')),
+        JSON_UNQUOTE(JSON_EXTRACT(p_role_specific_data, '$.hire_date')),
+        JSON_UNQUOTE(JSON_EXTRACT(p_role_specific_data, '$.date_of_birth')),
+        IF(p_role = 'student', CURDATE(), NULL),
+        JSON_UNQUOTE(JSON_EXTRACT(p_role_specific_data, '$.grade_level'))
+    );
+    SET p_user_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE sp_user_login(IN p_username VARCHAR(50), IN p_password VARCHAR(255))
+BEGIN
+    DECLARE v_user_id INT DEFAULT NULL;
+    SELECT user_id INTO v_user_id FROM users WHERE username = p_username AND is_active = TRUE LIMIT 1;
+    IF v_user_id IS NOT NULL AND verify_password(v_user_id, p_password) THEN
+        UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE user_id = v_user_id;
+        SELECT user_id, username, email, role, full_name FROM vw_user_roles WHERE user_id = v_user_id;
+    ELSE
+        SELECT 'Error' AS status, 'Credenciales inválidas o usuario inactivo.' AS message;
+    END IF;
+END //
+
+CREATE PROCEDURE sp_delete_user(IN p_user_id INT)
+BEGIN
+    DELETE FROM users WHERE user_id = p_user_id;
+END //
+
+DELIMITER ;
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+-- SECCIÓN 4: VISTAS
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+CREATE VIEW vw_user_roles AS SELECT user_id, username, email, role, full_name, is_active, created_at, last_login FROM users;
+CREATE VIEW vw_courses_with_teachers AS SELECT c.course_id, c.course_code, c.course_name, c.credits, tc.academic_year, tc.semester, tc.schedule, tc.classroom, u.user_id AS teacher_id, u.full_name AS teacher_name, u.specialization FROM courses c JOIN teacher_courses tc ON c.course_id = tc.course_id JOIN users u ON tc.teacher_id = u.user_id AND u.role = 'teacher' WHERE c.is_active = TRUE;
+CREATE VIEW vw_student_grades AS SELECT se.enrollment_id, s.user_id AS student_id, s.full_name AS student_name, c.course_id, c.course_name, t.user_id AS teacher_id, t.full_name AS teacher_name, se.academic_year, se.semester, calculate_course_average(se.enrollment_id) AS course_average, se.final_grade, se.status FROM student_enrollments se JOIN users s ON se.student_id = s.user_id JOIN courses c ON se.course_id = c.course_id JOIN users t ON se.teacher_id = t.user_id;
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+-- SECCIÓN 5: DISPARADORES (TRIGGERS)
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+DELIMITER //
+CREATE TRIGGER trg_encrypt_password_before_insert BEFORE INSERT ON users FOR EACH ROW BEGIN SET NEW.password_hash = encrypt_password(NEW.password_hash); END //
+CREATE TRIGGER trg_encrypt_password_before_update BEFORE UPDATE ON users FOR EACH ROW BEGIN IF NEW.password_hash != OLD.password_hash THEN SET NEW.password_hash = encrypt_password(NEW.password_hash); END IF; END //
+CREATE TRIGGER trg_update_final_grade AFTER INSERT ON grades FOR EACH ROW BEGIN UPDATE student_enrollments SET final_grade = calculate_course_average(NEW.enrollment_id) WHERE enrollment_id = NEW.enrollment_id; END //
+CREATE TRIGGER trg_log_role_change AFTER UPDATE ON users FOR EACH ROW BEGIN IF OLD.role != NEW.role THEN INSERT INTO user_role_changes (user_id, old_role, new_role, changed_by) VALUES (NEW.user_id, OLD.role, NEW.role, NEW.user_id); END IF; END //
+CREATE TRIGGER trg_validate_teacher_course BEFORE INSERT ON teacher_courses FOR EACH ROW BEGIN IF (SELECT COUNT(*) FROM teacher_courses WHERE teacher_id = NEW.teacher_id AND academic_year = NEW.academic_year AND semester = NEW.semester) >= 5 THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Un profesor no puede tener más de 5 cursos en el mismo semestre'; END IF; END //
+DELIMITER ;
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+-- SECCIÓN 6: USUARIOS Y PRIVILEGIOS DE LA APLICACIÓN
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+DROP USER IF EXISTS 'ajesha'@'localhost';
+CREATE USER 'ajesha'@'localhost' IDENTIFIED BY 'ControladorTotalitario_123';
+GRANT ALL PRIVILEGES ON ajesha.* TO 'ajesha'@'localhost';
+
+FLUSH PRIVILEGES;
+
+-- =================================================================================
+-- FIN DEL SCRIPT
+-- =================================================================================

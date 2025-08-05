@@ -1,0 +1,118 @@
+-- =================================================================================
+-- SCRIPT CORREGIDO Y ROBUSTO PARA POBLAR LA BASE DE DATOS 'ajesha'
+-- Versión: Obtención dinámica de IDs para evitar errores de FK.
+-- =================================================================================
+
+USE ajesha;
+
+SET @new_user_id = 0;
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+-- SECCIÓN 1: CREACIÓN DE USUARIOS
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+
+CALL sp_register_user('admin', 'admin123', 'admin@ajesha.edu', 'admin', 'Administrador General', '{ "phone": "555-0199" }', @new_user_id);
+CALL sp_register_user('coordinator', 'coord123', 'coord@ajesha.edu', 'coordinator', 'Laura Garcia', '{ "department": "Académico" }', @new_user_id);
+CALL sp_register_user('carlos_m', 'teacher123', 'carlos.m@ajesha.edu', 'teacher', 'Carlos Mendoza', '{ "specialization": "Matemáticas", "hire_date": "2022-08-15" }', @new_user_id);
+CALL sp_register_user('elena_r', 'teacher123', 'elena.r@ajesha.edu', 'teacher', 'Elena Rios', '{ "specialization": "Historia", "hire_date": "2021-03-10" }', @new_user_id);
+CALL sp_register_user('ana_t', 'student123', 'ana.t@ajesha.edu', 'student', 'Ana Torres', '{ "date_of_birth": "2005-05-20", "grade_level": "11vo Grado" }', @new_user_id);
+CALL sp_register_user('bruno_d', 'student123', 'bruno.d@ajesha.edu', 'student', 'Bruno Diaz', '{ "date_of_birth": "2006-01-15", "grade_level": "10mo Grado" }', @new_user_id);
+CALL sp_register_user('carla_s', 'student123', 'carla.s@ajesha.edu', 'student', 'Carla Soto', '{ "date_of_birth": "2005-11-30", "grade_level": "11vo Grado" }', @new_user_id);
+
+-- <<< CAMBIO CLAVE AQUÍ: Obtener los IDs reales de la base de datos >>>
+SELECT user_id INTO @admin_id FROM users WHERE username = 'admin';
+SELECT user_id INTO @coord_id FROM users WHERE username = 'coordinator';
+SELECT user_id INTO @teacher_carlos_id FROM users WHERE username = 'carlos_m';
+SELECT user_id INTO @teacher_elena_id FROM users WHERE username = 'elena_r';
+SELECT user_id INTO @student_ana_id FROM users WHERE username = 'ana_t';
+SELECT user_id INTO @student_bruno_id FROM users WHERE username = 'bruno_d';
+SELECT user_id INTO @student_carla_id FROM users WHERE username = 'carla_s';
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+-- SECCIÓN 2: DATOS INSTITUCIONALES
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+
+INSERT INTO academic_cycles (cycle_name, start_date, end_date, is_active) VALUES ('Semestre 2024-2', '2024-08-01', '2024-12-15', FALSE);
+INSERT INTO academic_cycles (cycle_name, start_date, end_date, is_active) VALUES ('Semestre 2025-1', '2025-02-01', '2025-06-30', TRUE);
+
+INSERT INTO courses (course_code, course_name, credits, department) VALUES ('MAT-101', 'Cálculo I', 5, 'Ciencias Exactas');
+INSERT INTO courses (course_code, course_name, credits, department) VALUES ('MAT-201', 'Álgebra Lineal', 5, 'Ciencias Exactas');
+INSERT INTO courses (course_code, course_name, credits, department) VALUES ('HIS-101', 'Historia Universal', 4, 'Humanidades');
+INSERT INTO courses (course_code, course_name, credits, department) VALUES ('CS-101', 'Introducción a la Programación', 4, 'Tecnología');
+
+SELECT course_id INTO @course_calculo_id FROM courses WHERE course_code = 'MAT-101';
+SELECT course_id INTO @course_algebra_id FROM courses WHERE course_code = 'MAT-201';
+SELECT course_id INTO @course_historia_id FROM courses WHERE course_code = 'HIS-101';
+SELECT course_id INTO @course_prog_id FROM courses WHERE course_code = 'CS-101';
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+-- SECCIÓN 3: ASIGNACIONES Y INSCRIPCIONES
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+
+INSERT INTO teacher_courses (teacher_id, course_id, academic_year, semester, schedule, classroom) VALUES
+(@teacher_carlos_id, @course_calculo_id, '2025', '1', 'Lu-Mi-Vi 08:00-10:00', 'A-101'),
+(@teacher_carlos_id, @course_algebra_id, '2025', '1', 'Ma-Ju 10:00-12:00', 'A-102'),
+(@teacher_elena_id, @course_historia_id, '2025', '1', 'Lu-Mi-Vi 12:00-13:30', 'B-201');
+
+INSERT INTO student_enrollments (student_id, course_id, teacher_id, academic_year, semester, enrollment_date) VALUES
+(@student_ana_id, @course_calculo_id, @teacher_carlos_id, '2025', '1', CURDATE()),
+(@student_ana_id, @course_historia_id, @teacher_elena_id, '2025', '1', CURDATE()),
+(@student_bruno_id, @course_calculo_id, @teacher_carlos_id, '2025', '1', CURDATE()),
+(@student_bruno_id, @course_algebra_id, @teacher_carlos_id, '2025', '1', CURDATE()),
+(@student_carla_id, @course_historia_id, @teacher_elena_id, '2025', '1', CURDATE());
+
+SELECT enrollment_id INTO @enroll_ana_calculo FROM student_enrollments WHERE student_id = @student_ana_id AND course_id = @course_calculo_id;
+SELECT enrollment_id INTO @enroll_ana_historia FROM student_enrollments WHERE student_id = @student_ana_id AND course_id = @course_historia_id;
+SELECT enrollment_id INTO @enroll_bruno_calculo FROM student_enrollments WHERE student_id = @student_bruno_id AND course_id = @course_calculo_id;
+SELECT enrollment_id INTO @enroll_bruno_algebra FROM student_enrollments WHERE student_id = @student_bruno_id AND course_id = @course_algebra_id;
+SELECT enrollment_id INTO @enroll_carla_historia FROM student_enrollments WHERE student_id = @student_carla_id AND course_id = @course_historia_id;
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+-- SECCIÓN 4: REGISTROS ACADÉMICOS DIARIOS
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+
+INSERT INTO attendance (enrollment_id, class_date, status, recorded_by) VALUES
+(@enroll_ana_calculo, '2025-03-03', 'present', @teacher_carlos_id),
+(@enroll_ana_calculo, '2025-03-05', 'absent', @teacher_carlos_id),
+(@enroll_bruno_calculo, '2025-03-03', 'present', @teacher_carlos_id),
+(@enroll_bruno_calculo, '2025-03-05', 'late', @teacher_carlos_id),
+(@enroll_carla_historia, '2025-03-04', 'present', @teacher_elena_id);
+
+INSERT INTO grades (enrollment_id, assessment_type, grade_value, max_grade, weight, assessment_date, recorded_by) VALUES
+(@enroll_ana_calculo, 'quiz', 85, 100, 0.20, '2025-03-10', @teacher_carlos_id),
+(@enroll_ana_calculo, 'homework', 100, 100, 0.10, '2025-03-12', @teacher_carlos_id),
+(@enroll_bruno_calculo, 'quiz', 70, 100, 0.20, '2025-03-10', @teacher_carlos_id);
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+-- SECCIÓN 5: TAREAS Y ENTREGAS
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+
+INSERT INTO assignments (course_id, teacher_id, title, description, due_date) VALUES
+(@course_calculo_id, @teacher_carlos_id, 'Tarea 1: Límites y Continuidad', 'Resolver los ejercicios del capítulo 2 del libro de texto.', '2025-03-20 23:59:59'),
+(@course_historia_id, @teacher_elena_id, 'Ensayo: La Revolución Francesa', 'Escribir un ensayo de 5 páginas sobre las causas y consecuencias de la Revolución Francesa.', '2025-03-25 23:59:59');
+
+SELECT assignment_id INTO @assignment_limites_id FROM assignments WHERE title LIKE 'Tarea 1: Límites%';
+SELECT assignment_id INTO @assignment_ensayo_id FROM assignments WHERE title LIKE 'Ensayo: La Revolución%';
+
+INSERT INTO assignment_submissions (assignment_id, student_id, status) VALUES (@assignment_limites_id, @student_ana_id, 'entregada');
+INSERT INTO assignment_submissions (assignment_id, student_id, status, grade, teacher_comments, graded_at) VALUES (@assignment_ensayo_id, @student_carla_id, 'entregada', 95.00, 'Excelente trabajo. Muy bien estructurado y argumentado.', NOW());
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+-- SECCIÓN 6: COMUNICACIONES Y SOLICITUDES
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+
+INSERT INTO notifications (title, message, sent_by_user_id, audience) VALUES ('Recordatorio de Reinscripción', 'Se les recuerda que el periodo de reinscripción para el próximo semestre termina el 15 de mayo. Por favor, realicen su trámite a tiempo.', @coord_id, 'students');
+
+INSERT INTO document_requests (student_id, document_type, status) VALUES (@student_bruno_id, 'Constancia de Estudios', 'pending');
+
+INSERT INTO teacher_observations (enrollment_id, teacher_id, observation_text) VALUES (@enroll_ana_historia, @teacher_elena_id, 'Ana muestra un gran interés en clase y participa activamente en los debates.');
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+-- SECCIÓN 7: VERIFICACIÓN
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+
+SELECT 'Datos de ejemplo insertados exitosamente.' AS 'Estado';
+
+-- =================================================================================
+-- FIN DEL SCRIPT
+-- =================================================================================

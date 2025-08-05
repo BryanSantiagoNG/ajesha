@@ -12,7 +12,6 @@ namespace ajesha
             this.BackColor = Color.FromArgb(45, 45, 48);
             SetupUI();
         }
-
         private void SetupUI()
         {
             var contentPanel = new FlowLayoutPanel
@@ -43,7 +42,9 @@ namespace ajesha
 
             var lblDescription = new RichTextBox
             {
-                Text = "Este software es una solución integral para la gestión académica, diseñada para facilitar la administración de usuarios, cursos, calificaciones y asistencias. Permite a administradores, coordinadores, maestros y estudiantes interactuar con el sistema de una manera eficiente y segura.",
+                Text = "Este software es una solución integral para la gestión académica, " +
+                "diseñada para facilitar la administración de usuarios, cursos, calificaciones y asistencias. Permite a administradores, " +
+                "coordinadores, maestros y estudiantes interactuar con el sistema de una manera eficiente y segura.",
                 ReadOnly = true,
                 BorderStyle = BorderStyle.None,
                 BackColor = this.BackColor, 
@@ -55,13 +56,18 @@ namespace ajesha
 
             var lblCopyright = new Label
             {
-                Text = "© 2025 Ajesha Systems. Todos los derechos reservados.\nDesarrollado por Bryan Santiago Navarro Godinez, Diego Alfonso Vaca Moreno, Esequiel Espejo Salon, Heriberto López Velázquez, Jesus Manuel Sanchez Quiñonez, ",
+                Text = "© 2025 Ajesha Systems. Todos los derechos reservados.\n" +
+                "Desarrollado por: \nBryan Santiago Navarro Godinez, \n" +
+                "Diego Alfonso Vaca Moreno, \n" +
+                "Esequiel Espejo Salon, \n" +
+                "Heriberto López Velázquez, \n" +
+                "Jesus Manuel Sanchez Quiñonez, \n" +
+                "Eduardo Antonio Valenzuela Hernandez",
                 ForeColor = Color.Gray,
                 Font = new Font("Segoe UI", 9F),
                 AutoSize = true,
                 Margin = new Padding(0, 60, 0, 0)
             };
-
             contentPanel.Controls.Add(lblTitle);
             contentPanel.Controls.Add(lblVersion);
             contentPanel.Controls.Add(lblDescription);

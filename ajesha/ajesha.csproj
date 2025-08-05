@@ -122,41 +122,155 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ucAbout.cs">
+    <Compile Include="Common\ucAbout.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="ucAbout.Designer.cs">
+    <Compile Include="Common\ucAbout.Designer.cs">
       <DependentUpon>ucAbout.cs</DependentUpon>
     </Compile>
-    <Compile Include="ucAdminSistema.cs">
+    <Compile Include="Admin\ucAdminSistema.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="ucAdminSistema.Designer.cs">
+    <Compile Include="Admin\ucAdminSistema.Designer.cs">
       <DependentUpon>ucAdminSistema.cs</DependentUpon>
     </Compile>
-    <Compile Include="ucCoordinatorPanel.cs">
+    <Compile Include="Coord\ucCoordinator_Enrollments.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="ucCoordinatorPanel.Designer.cs">
-      <DependentUpon>ucCoordinatorPanel.cs</DependentUpon>
+    <Compile Include="Coord\ucCoordinator_Enrollments.Designer.cs">
+      <DependentUpon>ucCoordinator_Enrollments.cs</DependentUpon>
     </Compile>
-    <Compile Include="ucDashboard.cs">
+    <Compile Include="Coord\ucCoordinator_Files.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="ucDashboard.Designer.cs">
+    <Compile Include="Coord\ucCoordinator_Files.Designer.cs">
+      <DependentUpon>ucCoordinator_Files.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Coord\ucCoordinator_Notifications.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Coord\ucCoordinator_Notifications.Designer.cs">
+      <DependentUpon>ucCoordinator_Notifications.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Coord\ucCoordinator_Requests.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Coord\ucCoordinator_Requests.Designer.cs">
+      <DependentUpon>ucCoordinator_Requests.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Coord\ucCoordinator_StudentManagement.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Coord\ucCoordinator_StudentManagement.Designer.cs">
+      <DependentUpon>ucCoordinator_StudentManagement.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Common\ucDashboard.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Common\ucDashboard.Designer.cs">
       <DependentUpon>ucDashboard.cs</DependentUpon>
     </Compile>
-    <Compile Include="ucNotifications.cs">
+    <Compile Include="Common\ucNotifications.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="ucNotifications.Designer.cs">
+    <Compile Include="Common\ucNotifications.Designer.cs">
       <DependentUpon>ucNotifications.cs</DependentUpon>
     </Compile>
-    <Compile Include="ucProfile.cs">
+    <Compile Include="Common\ucProfile.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="ucProfile.Designer.cs">
+    <Compile Include="Common\ucProfile.Designer.cs">
       <DependentUpon>ucProfile.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Student\ucStudentClassroom.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Student\ucStudentClassroom.Designer.cs">
+      <DependentUpon>ucStudentClassroom.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Student\ucStudentFinance.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Student\ucStudentFinance.Designer.cs">
+      <DependentUpon>ucStudentFinance.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Student\ucStudentGrades.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Student\ucStudentGrades.Designer.cs">
+      <DependentUpon>ucStudentGrades.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Teacher\ucTeacher_Announcements.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Teacher\ucTeacher_Announcements.Designer.cs">
+      <DependentUpon>ucTeacher_Announcements.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Teacher\ucTeacher_CourseManagement.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Teacher\ucTeacher_CourseManagement.Designer.cs">
+      <DependentUpon>ucTeacher_CourseManagement.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Teacher\ucTeacher_Schedule.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Teacher\ucTeacher_Schedule.Designer.cs">
+      <DependentUpon>ucTeacher_Schedule.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Coord\ucCoordinator_AssignCourses.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Coord\ucCoordinator_AssignCourses.Designer.cs">
+      <DependentUpon>ucCoordinator_AssignCourses.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Coord\ucCoordinator_CourseManagement.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Coord\ucCoordinator_CourseManagement.Designer.cs">
+      <DependentUpon>ucCoordinator_CourseManagement.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Student\ucStudentAttendance.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Student\ucStudentAttendance.Designer.cs">
+      <DependentUpon>ucStudentAttendance.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Student\ucStudentSubmitAssignment.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Student\ucStudentSubmitAssignment.Designer.cs">
+      <DependentUpon>ucStudentSubmitAssignment.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Teacher\ucTeacherGradeSubmission.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Teacher\ucTeacherGradeSubmission.Designer.cs">
+      <DependentUpon>ucTeacherGradeSubmission.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Coord\ucCoordinator_AcademicTracking.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Coord\ucCoordinator_AcademicTracking.Designer.cs">
+      <DependentUpon>ucCoordinator_AcademicTracking.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Coord\ucCoordinator_Reports.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Coord\ucCoordinator_Reports.Designer.cs">
+      <DependentUpon>ucCoordinator_Reports.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\ucAdmin_Reports.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Admin\ucAdmin_Reports.Designer.cs">
+      <DependentUpon>ucAdmin_Reports.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\ucAdmin_Settings.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Admin\ucAdmin_Settings.Designer.cs">
+      <DependentUpon>ucAdmin_Settings.cs</DependentUpon>
     </Compile>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -235,6 +349,40 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\001-calendario.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\002-carpeta.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\003-informe-seo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\004-configuraciones.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\005-graduacin.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\006-admin-con-ruedas-dentadas.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\007-ruta.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\008-asignar.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\009-curriculum-vitae.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\010-ayudar.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="DBCreationScript.txt" />
+    <Content Include="DBFeedTables.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

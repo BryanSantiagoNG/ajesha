@@ -29,7 +29,16 @@ namespace ajesha
             var mainLayout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 2, Padding = new Padding(30) };
             mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
             mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            dgvUsers = new DataGridView { Dock = DockStyle.Fill, ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, ReadOnly = true, SelectionMode = DataGridViewSelectionMode.FullRowSelect, AllowUserToAddRows = false, MultiSelect = false };
+            dgvUsers = new DataGridView 
+            { 
+                Dock = DockStyle.Fill, 
+                ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize, 
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, 
+                ReadOnly = true, 
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect, 
+                AllowUserToAddRows = false, 
+                MultiSelect = false 
+            };
             dgvUsers.CellClick += DgvUsers_CellClick;
             mainLayout.Controls.Add(dgvUsers, 0, 0);
             var editPanel = new GroupBox { Text = "Detalles del Usuario", ForeColor = Color.White, Dock = DockStyle.Fill, Padding = new Padding(10) };
@@ -153,7 +162,10 @@ namespace ajesha
         {
             if (string.IsNullOrWhiteSpace(txtUsername.Text) || string.IsNullOrWhiteSpace(txtEmail.Text) || string.IsNullOrWhiteSpace(txtFullName.Text) || cmbRole.SelectedItem == null)
             {
-                MessageBox.Show("Por favor, complete todos los campos requeridos (Username, Email, Nombre, Rol).", "Campos Requeridos", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Por favor, complete todos los campos requeridos (Username, Email, Nombre, Rol).", 
+                    "Campos Requeridos", 
+                    MessageBoxButtons.OK, 
+                    MessageBoxIcon.Warning);
                 return;
             }
 
@@ -171,14 +183,17 @@ namespace ajesha
                             return;
                         }
                         cmd = new MySqlCommand(
-                            "INSERT INTO users (username, password_hash, email, role, full_name, is_active, must_change_password, phone, department, specialization, hire_date, date_of_birth, enrollment_date, current_grade_level) " +
-                            "VALUES (@username, @password, @email, @role, @full_name, @is_active, @must_change_password, @phone, @department, @specialization, @hire_date, @date_of_birth, @enrollment_date, @current_grade_level)", connection);
+                            "INSERT INTO users (username, password_hash, email, role, full_name, is_active, must_change_password, phone, department, " +
+                            "specialization, hire_date, date_of_birth, enrollment_date, current_grade_level) " +
+                            "VALUES (@username, @password, @email, @role, @full_name, @is_active, @must_change_password, @phone, " +
+                            "@department, @specialization, @hire_date, @date_of_birth, @enrollment_date, @current_grade_level)", connection);
                         cmd.Parameters.AddWithValue("@password", txtPassword.Text);
                     }
                     else 
                     {
                         cmd = new MySqlCommand(
-                            "UPDATE users SET username=@username, email=@email, role=@role, full_name=@full_name, is_active=@is_active, must_change_password=@must_change_password, phone=@phone, department=@department, " +
+                            "UPDATE users SET username=@username, email=@email, role=@role, full_name=@full_name, is_active=@is_active, " +
+                            "must_change_password=@must_change_password, phone=@phone, department=@department, " +
                             "specialization=@specialization, hire_date=@hire_date, date_of_birth=@date_of_birth, current_grade_level=@current_grade_level " +
                             "WHERE user_id=@user_id", connection);
                         cmd.Parameters.AddWithValue("@user_id", selectedUserId);
@@ -234,11 +249,111 @@ namespace ajesha
             }
         }
         private string FormatDate(object dbDate) { if (dbDate == null || dbDate == DBNull.Value) return null; return Convert.ToDateTime(dbDate).ToString("yyyy-MM-dd"); }
-        private void CmbRole_SelectedIndexChanged(object sender, EventArgs e) { ClearSpecificFields(); if (cmbRole.SelectedItem == null) return; string selectedRole = cmbRole.SelectedItem.ToString(); lblSpecificInfo.Visible = true; txtSpecificInfo.Visible = true; lblSpecificInfo2.Visible = false; txtSpecificInfo2.Visible = false; switch (selectedRole) { case "admin": lblSpecificInfo.Text = "Teléfono:"; break; case "coordinator": lblSpecificInfo.Text = "Departamento:"; break; case "teacher": lblSpecificInfo.Text = "Especialización:"; lblSpecificInfo2.Text = "Fecha Contratación (YYYY-MM-DD):"; lblSpecificInfo2.Visible = true; txtSpecificInfo2.Visible = true; break; case "student": lblSpecificInfo.Text = "Nivel de Grado:"; lblSpecificInfo2.Text = "Fecha Nacimiento (YYYY-MM-DD):"; lblSpecificInfo2.Visible = true; txtSpecificInfo2.Visible = true; break; default: lblSpecificInfo.Visible = false; txtSpecificInfo.Visible = false; break; } }
-        private void BtnDelete_Click(object sender, EventArgs e) { if (selectedUserId == 0) { MessageBox.Show("Por favor, seleccione un usuario de la lista para eliminar.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; } if (MessageBox.Show("¿Está seguro de que desea eliminar a este usuario? Esta acción no se puede deshacer.", "Confirmar Eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) { try { using (var connection = DBConnection.GetConnection()) { connection.Open(); var cmd = new MySqlCommand("DELETE FROM users WHERE user_id = @user_id", connection); cmd.Parameters.AddWithValue("@user_id", selectedUserId); cmd.ExecuteNonQuery(); MessageBox.Show("Usuario eliminado exitosamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information); } } catch (Exception ex) { MessageBox.Show("Error al eliminar el usuario: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); } finally { LoadUsers(); ClearForm(); } } }
-        private void BtnChangePassword_Click(object sender, EventArgs e) { if (selectedUserId == 0) { MessageBox.Show("Por favor, seleccione un usuario de la lista.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; } if (string.IsNullOrWhiteSpace(txtPassword.Text)) { MessageBox.Show("Por favor, ingrese la nueva contraseña en el campo 'Password'.", "Contraseña Vacía", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; } if (MessageBox.Show($"¿Está seguro de que desea cambiar la contraseña para el usuario '{txtUsername.Text}'?", "Confirmar Cambio de Contraseña", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) { try { using (var connection = DBConnection.GetConnection()) { connection.Open(); var cmd = new MySqlCommand("UPDATE users SET password_hash = @new_password, must_change_password = FALSE WHERE user_id = @user_id", connection); cmd.Parameters.AddWithValue("@user_id", selectedUserId); cmd.Parameters.AddWithValue("@new_password", txtPassword.Text); cmd.ExecuteNonQuery(); MessageBox.Show("Contraseña actualizada exitosamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information); txtPassword.Clear(); txtPassword.Enabled = false; } } catch (Exception ex) { MessageBox.Show("Error al cambiar la contraseña: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); } } }
+        private void CmbRole_SelectedIndexChanged(object sender, EventArgs e) 
+        { 
+            ClearSpecificFields(); 
+            if (cmbRole.SelectedItem == null) 
+                return; 
+            string selectedRole = cmbRole.SelectedItem.ToString(); 
+            lblSpecificInfo.Visible = true; 
+            txtSpecificInfo.Visible = true; 
+            lblSpecificInfo2.Visible = false; 
+            txtSpecificInfo2.Visible = false; 
+            switch (selectedRole) 
+            { 
+                case "admin": lblSpecificInfo.Text = "Teléfono:"; break; 
+                case "coordinator": lblSpecificInfo.Text = "Departamento:"; break; 
+                case "teacher": 
+                    lblSpecificInfo.Text = "Especialización:";
+                    lblSpecificInfo2.Text = "Fecha Contratación (YYYY-MM-DD):"; 
+                    lblSpecificInfo2.Visible = true; 
+                    txtSpecificInfo2.Visible = true; 
+                    break; 
+                case "student": 
+                    lblSpecificInfo.Text = "Nivel de Grado:";
+                    lblSpecificInfo2.Text = "Fecha Nacimiento (YYYY-MM-DD):"; 
+                    lblSpecificInfo2.Visible = true; 
+                    txtSpecificInfo2.Visible = true; 
+                    break; 
+                default: 
+                    lblSpecificInfo.Visible = false; 
+                    txtSpecificInfo.Visible = false; 
+                    break; 
+            } 
+        }
+        private void BtnDelete_Click(object sender, EventArgs e) 
+        { 
+            if (selectedUserId == 0) 
+            {
+                MessageBox.Show("Por favor, seleccione un usuario de la lista para eliminar.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning); 
+                return; 
+            } 
+            if (MessageBox.Show("¿Está seguro de que desea eliminar a este usuario? Esta acción no se puede deshacer.", 
+                "Confirmar Eliminación", 
+                MessageBoxButtons.YesNo, 
+                MessageBoxIcon.Question) == DialogResult.Yes) 
+            { 
+                try 
+                { 
+                    using (var connection = DBConnection.GetConnection()) 
+                    { 
+                        connection.Open();
+                        var cmd = new MySqlCommand("DELETE FROM users WHERE user_id = @user_id", connection); 
+                        cmd.Parameters.AddWithValue("@user_id", selectedUserId); 
+                        cmd.ExecuteNonQuery(); 
+                        MessageBox.Show("Usuario eliminado exitosamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information); 
+                    } 
+                }
+                catch (Exception ex) 
+                { 
+                    MessageBox.Show("Error al eliminar el usuario: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); 
+                } 
+                finally { LoadUsers(); ClearForm(); } 
+            } 
+        }
+        private void BtnChangePassword_Click(object sender, EventArgs e) 
+        {
+            if (selectedUserId == 0) 
+            {
+                MessageBox.Show("Por favor, seleccione un usuario de la lista.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning); 
+                return; 
+            } 
+            if (string.IsNullOrWhiteSpace(txtPassword.Text)) 
+            { 
+                MessageBox.Show("Por favor, ingrese la nueva contraseña en el campo 'Password'.", "Contraseña Vacía", MessageBoxButtons.OK, MessageBoxIcon.Warning); 
+                return; 
+            } 
+            if (MessageBox.Show($"¿Está seguro de que desea cambiar la contraseña para el usuario '{txtUsername.Text}'?", 
+                "Confirmar Cambio de Contraseña", 
+                MessageBoxButtons.YesNo, 
+                MessageBoxIcon.Question) == DialogResult.Yes) 
+            { 
+                try 
+                { 
+                    using (var connection = DBConnection.GetConnection()) 
+                    { 
+                        connection.Open(); 
+                        var cmd = new MySqlCommand("UPDATE users SET password_hash = @new_password, must_change_password = FALSE WHERE user_id = @user_id", connection);
+                        cmd.Parameters.AddWithValue("@user_id", selectedUserId); 
+                        cmd.Parameters.AddWithValue("@new_password", txtPassword.Text); 
+                        cmd.ExecuteNonQuery(); 
+                        MessageBox.Show("Contraseña actualizada exitosamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information); 
+                        txtPassword.Clear(); 
+                        txtPassword.Enabled = false;
+                    } 
+                } 
+                catch (Exception ex) { MessageBox.Show("Error al cambiar la contraseña: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); } } }
         private void BtnClear_Click(object sender, EventArgs e) { ClearForm(); }
-        private void ClearSpecificFields() { txtSpecificInfo.Clear(); txtSpecificInfo2.Clear(); lblSpecificInfo.Text = ""; lblSpecificInfo2.Text = ""; lblSpecificInfo.Visible = false; txtSpecificInfo.Visible = false; lblSpecificInfo2.Visible = false; txtSpecificInfo2.Visible = false; }
-
+        private void ClearSpecificFields() 
+        { 
+            txtSpecificInfo.Clear(); 
+            txtSpecificInfo2.Clear(); 
+            lblSpecificInfo.Text = ""; 
+            lblSpecificInfo2.Text = ""; 
+            lblSpecificInfo.Visible = false; 
+            txtSpecificInfo.Visible = false; 
+            lblSpecificInfo2.Visible = false; 
+            txtSpecificInfo2.Visible = false; 
+        }
     }
 }
